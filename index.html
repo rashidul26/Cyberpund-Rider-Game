@@ -1,0 +1,2747 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Rider 2D</title>
+    <style>
+       
+/* =========================================
+   NEON RIDER 2D — MERGED GAME
+   CSS PART 1/5
+   COMMON: VARIABLES, RESET, BASE LAYOUT
+========================================= */
+
+/* COMMON: Theme variables */
+:root {
+    --bg-main: #0d0e15;
+    --bg-panel: #0f172a;
+    --bg-overlay: rgba(10, 11, 22, 0.88);
+
+    --neon-cyan: #00f2fe;
+    --neon-blue: #4facfe;
+    --neon-pink: #ff007f;
+    --neon-green: #00ff66;
+    --neon-gold: #ffd700;
+    --neon-orange: #ffaa00;
+
+    --text-main: #ffffff;
+    --text-muted: #94a3b8;
+
+    --border-color: rgba(0, 242, 254, 0.45);
+    --panel-radius: 10px;
+    --game-width: 900px;
+
+    --shadow-cyan:
+        0 0 25px rgba(0, 242, 254, 0.25);
+}
+
+/* COMMON: Global reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    width: 100%;
+    min-height: 100%;
+    background: var(--bg-main);
+}
+
+/* COMMON: Page layout */
+body {
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+    background: var(--bg-main);
+    color: var(--text-main);
+
+    font-family: "Segoe UI", Tahoma, Geneva,
+                 Verdana, sans-serif;
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* COMMON: Form controls */
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--neon-cyan);
+    outline-offset: 3px;
+}
+
+/* COMMON: Main game container */
+#game-container,
+#gameContainer {
+    position: relative;
+    width: min(100%, var(--game-width));
+    flex-shrink: 0;
+
+    background: #000;
+    border: 1px solid var(--border-color);
+    border-radius: var(--panel-radius);
+    overflow: hidden;
+
+    box-shadow: var(--shadow-cyan);
+}
+
+/* CSS PART 1 END */
+
+ 
+/* =========================================
+   CSS PART 2/5
+   COMMON: CANVAS + GAME HUD
+========================================= */
+
+/* COMMON: Game canvas */
+#gameCanvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 9 / 5;
+
+    background: linear-gradient(
+        to bottom, #070b19, #0f172a
+    );
+
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* COMMON: Hidden elements */
+.hidden {
+    display: none !important;
+}
+
+/* COMMON: HUD layer */
+.ui-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    padding: 20px;
+    pointer-events: none;
+
+    font-family: "Courier New", monospace;
+}
+
+/* COMMON: HUD layout */
+.hud {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+}
+
+.hud-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* COMMON: HUD items */
+.hud-item {
+    padding: 9px 14px;
+    background: rgba(15, 23, 42, 0.85);
+
+    border: 1px solid var(--neon-cyan);
+    border-radius: 6px;
+
+    color: var(--neon-cyan);
+    font-size: 15px;
+    font-weight: bold;
+    white-space: nowrap;
+
+    text-shadow: 0 0 8px var(--neon-cyan);
+    box-shadow: inset 0 0 10px
+        rgba(0, 242, 254, 0.15);
+}
+
+#score-display {
+    color: var(--neon-cyan);
+}
+
+#health-display {
+    color: var(--neon-pink);
+    border-color: var(--neon-pink);
+    text-shadow: 0 0 8px var(--neon-pink);
+}
+
+#coins-display,
+#money-display {
+    color: var(--neon-gold);
+    border-color: var(--neon-gold);
+}
+
+#level-display {
+    color: var(--neon-green);
+    border-color: var(--neon-green);
+}
+
+#distance-display {
+    color: var(--neon-blue);
+    border-color: var(--neon-blue);
+}
+
+/* COMMON: Health bar */
+.health-bar {
+    width: 130px;
+    height: 12px;
+    overflow: hidden;
+
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--neon-pink);
+    border-radius: 20px;
+}
+
+.health-fill {
+    width: 100%;
+    height: 100%;
+    background: var(--neon-green);
+    transition: width 0.2s ease;
+}
+
+/* COMMON: Optional pause button */
+#pause-btn {
+    pointer-events: auto;
+    min-width: 42px;
+    min-height: 42px;
+
+    color: var(--neon-cyan);
+    background: var(--bg-panel);
+    border: 1px solid var(--neon-cyan);
+    border-radius: 6px;
+}
+
+/* CSS PART 2 END */
+
+
+/* =========================================
+   CSS PART 3/5
+   COMMON: SCREENS, BUTTONS, SETTINGS
+========================================= */
+
+/* COMMON: Overlay screens */
+.screen {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+
+    padding: 24px;
+    text-align: center;
+
+    background: var(--bg-overlay);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+
+    overflow-y: auto;
+}
+
+/* COMMON: Screen headings */
+.screen h1 {
+    margin-bottom: 8px;
+    font-size: clamp(25px, 5vw, 48px);
+    font-weight: 900;
+
+    text-transform: uppercase;
+    letter-spacing: clamp(1px, 0.5vw, 4px);
+
+    background: linear-gradient(
+        45deg,
+        var(--neon-cyan),
+        var(--neon-blue),
+        var(--neon-pink)
+    );
+
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    filter: drop-shadow(
+        0 0 12px rgba(0, 242, 254, 0.4)
+    );
+}
+
+/* COMMON: Screen descriptions */
+.screen p {
+    max-width: 460px;
+    margin-bottom: 10px;
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* COMMON: Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+    padding: 11px 28px;
+
+    color: var(--neon-cyan);
+    background: transparent;
+    border: 2px solid var(--neon-cyan);
+    border-radius: 6px;
+
+    font-size: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+
+    box-shadow: 0 0 12px
+        rgba(0, 242, 254, 0.15);
+
+    transition: background 0.2s ease,
+                color 0.2s ease,
+                box-shadow 0.2s ease,
+                transform 0.2s ease;
+}
+
+.btn:hover {
+    color: #000;
+    background: var(--neon-cyan);
+    box-shadow: 0 0 22px var(--neon-cyan);
+    transform: translateY(-2px);
+}
+
+.btn:active {
+    transform: scale(0.97);
+}
+
+/* COMMON: Pink buttons */
+.btn-pink,
+#game-over-screen .btn {
+    color: var(--neon-pink);
+    border-color: var(--neon-pink);
+}
+
+.btn-pink:hover,
+#game-over-screen .btn:hover {
+    color: #fff;
+    background: var(--neon-pink);
+    box-shadow: 0 0 22px var(--neon-pink);
+}
+
+/* COMMON: Keyboard hints */
+.controls-hint {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 5px;
+
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.key {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: #334155;
+    color: #fff;
+    font-size: 14px;
+}
+
+/* COMMON: Settings panel */
+#settings-screen {
+    gap: 16px;
+}
+
+.settings-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+}
+
+.settings-row label {
+    color: var(--text-main);
+    font-size: 15px;
+}
+
+.settings-row select {
+    max-width: 100%;
+    padding: 10px;
+    color: var(--neon-cyan);
+    background: var(--bg-panel);
+    border: 1px solid var(--neon-cyan);
+    border-radius: 5px;
+}
+
+.settings-row input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--neon-cyan);
+}
+
+/* CSS PART 3 END */
+
+
+/* =========================================
+   CSS PART 4/5
+   LEVEL 2: SHOP + EXTRA UI
+========================================= */
+
+/* LEVEL 2: Skin shop panels */
+.game-menu,
+.game-panel {
+    color: var(--text-main);
+    font-family: "Courier New", monospace;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#shop-screen {
+    gap: 14px;
+}
+
+.shop-items {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+}
+
+.shop-item {
+    min-width: 140px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.shop-item.selected {
+    border: 2px solid var(--neon-cyan);
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.3);
+}
+
+.shop-item button {
+    margin-top: 8px;
+}
+
+/* COMMON: Prevent accidental text selection */
+.ui-layer,
+.screen,
+.hud,
+.game-menu,
+.game-panel {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* COMMON: Tablet and mobile */
+@media screen and (max-width: 900px) {
+    body {
+        min-height: 100vh;
+        min-height: 100dvh;
+        padding: 0;
+    }
+
+    #game-container,
+    #gameContainer {
+        width: min(100vw, 180dvh, 900px);
+        border-radius: 6px;
+    }
+
+    .ui-layer {
+        padding: clamp(6px, 2vw, 14px);
+    }
+
+    .hud {
+        gap: 6px;
+    }
+
+    .hud-group {
+        gap: 5px;
+    }
+
+    .hud-item {
+        padding: 6px 9px;
+        font-size: clamp(10px, 2vw, 15px);
+    }
+
+    .screen {
+        gap: 8px;
+        padding: 12px;
+    }
+
+    .screen h1 {
+        font-size: clamp(20px, 5vw, 38px);
+        margin-bottom: 4px;
+    }
+
+    .screen p {
+        max-width: 95%;
+        font-size: clamp(10px, 2vw, 14px);
+        line-height: 1.35;
+        margin-bottom: 6px;
+    }
+
+    .btn {
+        min-height: 38px;
+        padding: 8px 18px;
+        font-size: clamp(11px, 2vw, 15px);
+    }
+
+    .controls-hint {
+        margin-top: 8px;
+        padding: 8px;
+    }
+
+    .key {
+        font-size: 11px;
+    }
+
+    .health-bar {
+        width: 90px;
+    }
+}
+
+/* LEVEL 2: Shop item responsive layout */
+@media screen and (max-width: 600px) {
+    .shop-items {
+        gap: 8px;
+    }
+
+    .shop-item {
+        min-width: 100px;
+        padding: 8px;
+    }
+
+    .settings-row {
+        gap: 8px;
+    }
+
+    .settings-row label {
+        font-size: 13px;
+    }
+}
+
+/* CSS PART 4 END */
+
+/* =========================================
+   CSS PART 5/5
+   COMMON: FINAL RESPONSIVE RULES
+========================================= */
+
+/* COMMON: Landscape mobile */
+@media screen and (max-width: 900px)
+and (orientation: landscape) {
+    body {
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        min-height: 0;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    #game-container,
+    #gameContainer {
+        width: min(100vw, 180dvh, 900px);
+        max-height: 100dvh;
+    }
+
+    .controls-hint {
+        margin-top: 5px;
+        padding: 5px 8px;
+    }
+
+    .screen {
+        gap: 5px;
+        padding: 8px;
+    }
+
+    .screen p {
+        margin-bottom: 4px;
+    }
+}
+
+/* COMMON: Portrait rotation notice */
+@media screen and (max-width: 900px)
+and (orientation: portrait) {
+    body::after {
+        content: "Please rotate your phone to landscape mode";
+
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 30px;
+        background: var(--bg-main);
+        color: var(--neon-cyan);
+
+        font-family: "Courier New", monospace;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+        line-height: 1.6;
+
+        text-shadow: 0 0 12px var(--neon-cyan);
+    }
+}
+
+/* COMMON: Very short landscape screens */
+@media screen and (max-height: 420px)
+and (orientation: landscape) {
+    .ui-layer {
+        padding: 5px;
+    }
+
+    .hud-item {
+        padding: 4px 7px;
+        font-size: 11px;
+    }
+
+    .screen {
+        gap: 4px;
+        padding: 5px;
+    }
+
+    .screen h1 {
+        font-size: 22px;
+        margin-bottom: 2px;
+    }
+
+    .screen p {
+        font-size: 11px;
+        margin-bottom: 3px;
+    }
+
+    .btn {
+        min-height: 32px;
+        padding: 5px 14px;
+    }
+
+    .controls-hint {
+        margin-top: 3px;
+        padding: 4px;
+    }
+}
+
+/* COMMON: Touch-friendly controls */
+button,
+.btn,
+#pause-btn {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* CSS PART 5 END */
+
+
+
+/* =========================================
+   MOBILE RESPONSIVE FIX
+========================================= */
+
+html,
+body {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+}
+
+body {
+    padding: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
+/* Game container */
+#game-container,
+#gameContainer {
+    width: min(100%, 900px);
+    max-width: 100vw;
+    min-width: 0;
+    flex-shrink: 1;
+    margin: auto;
+}
+
+/* Canvas */
+#gameCanvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 9 / 5;
+    max-width: 100%;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Overlay screen */
+.screen {
+    max-width: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+/* Mobile and tablet */
+@media (max-width: 768px) {
+    #game-container,
+    #gameContainer {
+        width: 100vw;
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+    }
+
+    .ui-layer {
+        padding: 6px;
+    }
+
+    .hud {
+        gap: 5px;
+    }
+
+    .hud-item {
+        padding: 5px 7px;
+        font-size: clamp(10px, 2.2vw, 13px);
+    }
+
+    .health-bar {
+        width: 70px;
+    }
+
+    .screen {
+        padding: 10px;
+        gap: 6px;
+    }
+
+    .screen h1 {
+        font-size: clamp(18px, 5vw, 30px);
+        letter-spacing: 1px;
+    }
+
+    .screen p {
+        font-size: clamp(11px, 2.5vw, 14px);
+    }
+
+    .btn {
+        min-height: 44px;
+        padding: 9px 16px;
+        font-size: 12px;
+    }
+}
+
+/* Landscape mobile */
+@media (max-width: 900px) and (orientation: landscape) {
+    body {
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        min-height: 0;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #game-container,
+    #gameContainer {
+        width: min(100vw, 180dvh, 900px);
+        max-height: 100dvh;
+    }
+
+    .screen {
+        padding: 6px;
+        gap: 4px;
+    }
+
+    .screen h1 {
+        font-size: clamp(18px, 4vh, 30px);
+        margin-bottom: 2px;
+    }
+
+    .screen p {
+        margin-bottom: 2px;
+    }
+
+    .controls-hint {
+        margin-top: 3px;
+        padding: 5px;
+    }
+}
+
+/* Remove the full-screen portrait blocker */
+@media (max-width: 900px) and (orientation: portrait) {
+    body::after {
+        content: none !important;
+        display: none !important;
+    }
+}
+
+/* Respect devices with touch input */
+@media (hover: none) and (pointer: coarse) {
+    #gameCanvas {
+        touch-action: none;
+    }
+
+    button,
+    .btn {
+        -webkit-tap-highlight-color: transparent;
+    }
+}
+
+</style>
+</head>
+<body>
+
+  
+<!-- =====================================
+     COMMON GAME SETTINGS
+     Level selector + Sound toggle
+====================================== -->
+<div class="game-settings">
+    <label for="level-select">LEVEL</label>
+
+    <select id="level-select">
+        <option value="1">Level 1</option>
+        <option value="2">Level 2</option>
+    </select>
+
+    <button type="button" id="sound-toggle" class="btn">
+        🔊 Sound ON
+    </button>
+</div>
+
+<!-- =====================================
+     COMMON GAME CONTAINER
+     Both levels share one canvas
+====================================== -->
+<div id="game-container">
+
+    <!-- =================================
+         LEVEL 1: START SCREEN
+    ================================== -->
+    <div id="start-screen" class="screen">
+
+        <h1>Neon Rider 2D</h1>
+
+        <p>
+            একটি সাইবারপাংক থিমের অ্যাডভান্সড
+            ওয়ান-ট্যাপ রানার গেম।
+            অবজেক্ট ও ড্রোনগুলো ডজ করুন!
+        </p>
+
+        <button type="button" class="btn" id="start-btn">
+            Start Game
+        </button>
+
+        <div class="controls-hint">
+            <p style="margin:0;">
+                <span class="key">Spacebar</span>
+                অথবা স্ক্রিনে
+                <span class="key">Click</span>
+                করে লাফ দিন (Double Jump সচল)
+            </p>
+        </div>
+
+    </div>
+    <!-- END LEVEL 1 START SCREEN -->
+
+
+    <!-- =================================
+         LEVEL 1: GAME OVER SCREEN
+    ================================== -->
+    <div id="game-over-screen" class="screen hidden">
+
+        <h1>Game Over</h1>
+
+        <p id="final-score-text">
+            আপনার স্কোর: 0
+        </p>
+
+        <button type="button" class="btn" id="restart-btn">
+            Try Again
+        </button>
+
+    </div>
+    <!-- END LEVEL 1 GAME OVER SCREEN -->
+
+
+    <!-- =================================
+         LEVEL 1: HUD
+    ================================== -->
+    <div class="ui-layer" id="level1-hud">
+
+        <div class="hud">
+
+            <div class="hud-item" id="score-display">
+                SCORE: 0
+            </div>
+
+            <div class="hud-item" id="health-display">
+                HP: 100%
+            </div>
+
+        </div>
+
+    </div>
+    <!-- END LEVEL 1 HUD -->
+
+
+    <!-- =================================
+         COMMON GAME CANVAS
+         Original resolution: 900 x 500
+         Both levels use this same canvas
+    ================================== -->
+    <canvas
+        id="gameCanvas"
+        width="900"
+        height="500"
+        aria-label="Neon Rider 2D game area">
+    </canvas>
+
+</div>
+<!-- END COMMON GAME CONTAINER -->
+
+
+<!-- =========================================
+     MERGED JAVASCRIPT
+     JavaScript Part 1/5 to Part 5/5
+     সব একই script-এর মধ্যে বসবে।
+========================================== -->
+
+
+   
+<script>
+
+/* =========================================
+   NEON RIDER 2D — MERGED JAVASCRIPT
+   PART 1/5
+   COMMON SETUP + AUDIO + LEVEL 1 PLAYER
+========================================= */
+
+// COMMON: Canvas and UI references
+const canvas = document.getElementById("gameCanvas");
+
+if (!canvas) {
+    throw new Error('Canvas element "#gameCanvas" was not found.');
+}
+
+const ctx = canvas.getContext("2d");
+
+if (!ctx) {
+    throw new Error("2D canvas context is not supported.");
+}
+
+const startScreen = document.getElementById("start-screen");
+const gameOverScreen = document.getElementById("game-over-screen");
+const startBtn = document.getElementById("start-btn");
+const restartBtn = document.getElementById("restart-btn");
+const scoreDisplay = document.getElementById("score-display");
+const healthDisplay = document.getElementById("health-display");
+const finalScoreText = document.getElementById("final-score-text");
+
+// COMMON: Settings
+let soundEnabled = true;
+let selectedLevel = 1;
+let gameActive = false;
+
+// COMMON: Audio system
+const AudioContextClass =
+    window.AudioContext || window.webkitAudioContext;
+
+const audioCtx = AudioContextClass
+    ? new AudioContextClass()
+    : null;
+
+function playSound(type) {
+    if (!soundEnabled || !audioCtx) return;
+
+    if (audioCtx.state === "suspended") {
+        audioCtx.resume().catch(() => {});
+    }
+
+    const now = audioCtx.currentTime;
+
+    const sounds = {
+        jump: {
+            waveform: "triangle",
+            startFreq: 150,
+            endFreq: 400,
+            duration: 0.15,
+            volume: 0.15,
+            ramp: "exponential"
+        },
+        hit: {
+            waveform: "sawtooth",
+            startFreq: 300,
+            endFreq: 60,
+            duration: 0.3,
+            volume: 0.3,
+            ramp: "linear"
+        },
+        score: {
+            waveform: "sine",
+            startFreq: 600,
+            endFreq: 900,
+            duration: 0.2,
+            volume: 0.1,
+            ramp: "exponential"
+        },
+        coin: {
+            waveform: "sine",
+            startFreq: 600,
+            endFreq: 900,
+            duration: 0.2,
+            volume: 0.1,
+            ramp: "exponential"
+        },
+        health: {
+            waveform: "sine",
+            startFreq: 500,
+            endFreq: 1000,
+            duration: 0.2,
+            volume: 0.12,
+            ramp: "exponential"
+        },
+        unlock: {
+            waveform: "triangle",
+            startFreq: 500,
+            endFreq: 1200,
+            duration: 0.3,
+            volume: 0.12,
+            ramp: "exponential"
+        }
+    };
+
+    const sound = sounds[type];
+
+    // Ignore unsupported sound types
+    if (!sound) return;
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = sound.waveform;
+    osc.frequency.setValueAtTime(sound.startFreq, now);
+
+    if (sound.ramp === "linear") {
+        osc.frequency.linearRampToValueAtTime(
+            sound.endFreq,
+            now + sound.duration
+        );
+    } else {
+        osc.frequency.exponentialRampToValueAtTime(
+            sound.endFreq,
+            now + sound.duration
+        );
+    }
+
+    // Extra tones for score and coin
+    if (type === "score" || type === "coin") {
+        osc.frequency.setValueAtTime(900, now + 0.08);
+    }
+
+    // Extra tones for unlock
+    if (type === "unlock") {
+        osc.frequency.setValueAtTime(800, now + 0.1);
+        osc.frequency.setValueAtTime(1200, now + 0.2);
+    }
+
+    gain.gain.setValueAtTime(sound.volume, now);
+    gain.gain.exponentialRampToValueAtTime(
+        0.01,
+        now + sound.duration
+    );
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start(now);
+    osc.stop(now + sound.duration);
+}
+
+// =========================================
+// LEVEL 1: ORIGINAL GAME STATE
+// =========================================
+
+let score = 0;
+let gameSpeed = 5;
+let baseSpeed = 5;
+let obstacles = [];
+let particles = [];
+let backgroundStars = [];
+let cityBuildings = [];
+let frameCount = 0;
+
+// LEVEL 1: Player
+const player = {
+    x: 100,
+    y: 400,
+    width: 45,
+    height: 45,
+    radius: 22,
+    vy: 0,
+    gravity: 0.6,
+    jumpForce: -13,
+    isGrounded: false,
+    jumpCount: 0,
+    maxJumps: 2,
+    health: 100,
+    angle: 0,
+
+    getGroundY() {
+        return canvas.height - 80 - this.height;
+    },
+
+    reset() {
+        this.y = this.getGroundY();
+        this.vy = 0;
+        this.jumpCount = 0;
+        this.isGrounded = true;
+        this.health = 100;
+        this.angle = 0;
+    },
+
+    jump() {
+        if (this.jumpCount >= this.maxJumps) return;
+
+        this.vy = this.jumpForce;
+        this.jumpCount++;
+        this.isGrounded = false;
+
+        playSound("jump");
+
+        createParticles(
+            this.x + this.width / 2,
+            this.y + this.height,
+            "#00f2fe",
+            10
+        );
+    },
+
+    update() {
+        this.vy += this.gravity;
+        this.y += this.vy;
+
+        const groundY = this.getGroundY();
+
+        if (this.y >= groundY) {
+            this.y = groundY;
+            this.vy = 0;
+            this.isGrounded = true;
+            this.jumpCount = 0;
+        } else {
+            this.isGrounded = false;
+        }
+
+        if (!this.isGrounded) {
+            this.angle += 0.1;
+        } else {
+            this.angle = 0;
+        }
+    },
+
+    draw() {
+        ctx.save();
+
+        ctx.translate(
+            this.x + this.width / 2,
+            this.y + this.height / 2
+        );
+
+        ctx.rotate(this.angle);
+
+        // Outer neon circle
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = "#00f2fe";
+        ctx.fillStyle = "#00f2fe";
+
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Inner circle
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#0f172a";
+
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius - 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Center core
+        ctx.fillStyle = "#ff007f";
+
+        ctx.beginPath();
+        ctx.arc(0, 0, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Neon outline
+        ctx.strokeStyle = "#4facfe";
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius - 3, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+};
+
+// PART 1 END
+
+
+/* =========================================
+   PART 2/5 — LEVEL 1
+   ENVIRONMENT, PARTICLES, OBSTACLES
+========================================= */
+
+// LEVEL 1: Initialize background
+function initEnvironment() {
+    backgroundStars = [];
+    cityBuildings = [];
+
+    for (let i = 0; i < 60; i++) {
+        backgroundStars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * Math.max(1, canvas.height - 150),
+            size: Math.random() * 2 + 0.5,
+            speed: Math.random() * 0.5 + 0.1
+        });
+    }
+
+    for (let i = 0; i < 10; i++) {
+        cityBuildings.push({
+            x: i * (canvas.width / 10),
+            width: Math.random() * 50 + 70,
+            height: Math.random() * 200 + 100,
+            color: `rgba(15,23,42,${Math.random() * 0.4 + 0.2})`,
+            neonColor: Math.random() > 0.5
+                ? "#ff007f"
+                : "#00f2fe"
+        });
+    }
+}
+
+// LEVEL 1: Particle effects
+function createParticles(x, y, color, count) {
+    const maxParticles = 500;
+    const available = maxParticles - particles.length;
+    const amount = Math.min(count, available);
+
+    for (let i = 0; i < amount; i++) {
+        particles.push({
+            x,
+            y,
+            vx: (Math.random() - 0.5) * 6 - gameSpeed * 0.2,
+            vy: (Math.random() - 0.5) * 6,
+            radius: Math.random() * 3 + 1,
+            color,
+            alpha: 1,
+            decay: Math.random() * 0.02 + 0.01
+        });
+    }
+}
+
+// LEVEL 1: Obstacle spawning
+function spawnObstacle() {
+    const types = ["ground_block", "drone", "laser_gate"];
+    const type = types[Math.floor(Math.random() * types.length)];
+
+    const groundY = canvas.height - 80;
+
+    const obstacle = {
+        x: canvas.width + 100,
+        type,
+        passed: false,
+        color: "#ff007f"
+    };
+
+    if (type === "ground_block") {
+        obstacle.width = Math.random() * 20 + 30;
+        obstacle.height = Math.random() * 30 + 40;
+        obstacle.y = groundY - obstacle.height;
+    } else if (type === "drone") {
+        obstacle.width = 40;
+        obstacle.height = 30;
+        obstacle.y = groundY - 100 - Math.random() * 80;
+        obstacle.color = "#ff007f";
+        obstacle.bobFreq = Math.random() * 0.05 + 0.02;
+        obstacle.baseY = obstacle.y;
+    } else {
+        obstacle.width = 20;
+        obstacle.height = 90;
+        obstacle.y = groundY - obstacle.height;
+        obstacle.color = "#ffaa00";
+    }
+
+    obstacles.push(obstacle);
+}
+
+// LEVEL 1: Update obstacles and collisions
+function updateLevel1() {
+    if (!gameActive) return;
+
+    frameCount++;
+
+    gameSpeed = Math.min(14, baseSpeed + score * 0.15);
+
+    // Background stars
+    backgroundStars.forEach(star => {
+        star.x -= star.speed;
+
+        if (star.x < 0) {
+            star.x = canvas.width;
+            star.y = Math.random() * Math.max(1, canvas.height - 150);
+        }
+    });
+
+    // City buildings
+    cityBuildings.forEach(b => {
+        b.x -= gameSpeed * 0.2;
+
+        if (b.x + b.width < 0) {
+            b.x = canvas.width + Math.random() * 40;
+            b.height = Math.random() * 200 + 100;
+        }
+    });
+
+    // Player physics
+    player.update();
+
+    // Obstacle spawn interval
+    const spawnInterval = Math.max(
+        70,
+        150 - Math.floor(gameSpeed * 5)
+    );
+
+    if (frameCount % spawnInterval === 0) {
+        spawnObstacle();
+    }
+
+    // Player circle center
+    const playerCenterX = player.x + player.width / 2;
+    const playerCenterY = player.y + player.height / 2;
+
+    // Update obstacles and detect collisions
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obs = obstacles[i];
+
+        obs.x -= gameSpeed;
+
+        // Drone movement
+        if (obs.type === "drone") {
+            obs.y = obs.baseY +
+                Math.sin(frameCount * obs.bobFreq) * 15;
+        }
+
+        // Score when obstacle has been passed
+        if (!obs.passed && obs.x + obs.width < player.x) {
+            obs.passed = true;
+            score += 10;
+            playSound("score");
+        }
+
+        // Circle-to-rectangle collision
+        const closestX = Math.max(
+            obs.x,
+            Math.min(playerCenterX, obs.x + obs.width)
+        );
+
+        const closestY = Math.max(
+            obs.y,
+            Math.min(playerCenterY, obs.y + obs.height)
+        );
+
+        const dx = playerCenterX - closestX;
+        const dy = playerCenterY - closestY;
+
+        if (
+            dx * dx + dy * dy <
+            player.radius * player.radius
+        ) {
+            createParticles(
+                playerCenterX,
+                playerCenterY,
+                "#ff007f",
+                15
+            );
+
+            player.health = Math.max(0, player.health - 35);
+
+            obstacles.splice(i, 1);
+            playSound("hit");
+
+            if (player.health <= 0) {
+                endGame();
+                return;
+            }
+
+            continue;
+        }
+
+        // Remove obstacles outside the screen
+        if (obs.x + obs.width < 0) {
+            obstacles.splice(i, 1);
+        }
+    }
+
+    updateLevel1Particles();
+    updateLevel1HUD();
+}
+
+// LEVEL 1: Update particles
+function updateLevel1Particles() {
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= p.decay;
+
+        if (p.alpha <= 0) {
+            particles.splice(i, 1);
+        }
+    }
+}
+
+// LEVEL 1: Update score and health display
+function updateLevel1HUD() {
+    if (scoreDisplay) {
+        scoreDisplay.innerText = "SCORE: " + score;
+    }
+
+    if (healthDisplay) {
+        healthDisplay.innerText = "HP: " + player.health + "%";
+
+        healthDisplay.style.color =
+            player.health > 40
+                ? "#00ff66"
+                : "#ff007f";
+    }
+}
+
+// PART 2 END
+
+
+/* =========================================
+   PART 3/5
+   LEVEL 1: DRAWING + GAME LIFECYCLE
+========================================= */
+
+function drawLevel1() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Background stars
+    ctx.fillStyle = "#ffffff";
+
+    backgroundStars.forEach(s => {
+        ctx.globalAlpha = Math.min(1, s.speed * 1.5);
+        ctx.fillRect(s.x, s.y, s.size, s.size);
+    });
+
+    ctx.globalAlpha = 1;
+
+    // City buildings
+    cityBuildings.forEach(b => {
+        const buildingY = canvas.height - 80 - b.height;
+
+        ctx.fillStyle = b.color;
+        ctx.fillRect(
+            b.x,
+            buildingY,
+            b.width,
+            b.height
+        );
+
+        ctx.strokeStyle = b.neonColor;
+        ctx.lineWidth = 1;
+
+        ctx.beginPath();
+        ctx.moveTo(b.x, buildingY);
+        ctx.lineTo(b.x + b.width, buildingY);
+        ctx.stroke();
+    });
+
+    // Ground
+    const groundY = canvas.height - 80;
+
+    ctx.fillStyle = "#111424";
+    ctx.fillRect(
+        0,
+        groundY,
+        canvas.width,
+        80
+    );
+
+    // Neon ground line
+    ctx.save();
+
+    ctx.strokeStyle = "#00f2fe";
+    ctx.lineWidth = 3;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = "#00f2fe";
+
+    ctx.beginPath();
+    ctx.moveTo(0, groundY);
+    ctx.lineTo(canvas.width, groundY);
+    ctx.stroke();
+
+    ctx.restore();
+
+    // Moving ground grid
+    ctx.strokeStyle = "rgba(0,242,254,0.15)";
+    ctx.lineWidth = 1;
+
+    const offset = (frameCount * gameSpeed) % 40;
+
+    for (let x = -offset; x < canvas.width; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, groundY);
+        ctx.lineTo(x - 40, canvas.height);
+        ctx.stroke();
+    }
+
+    // Obstacles
+    obstacles.forEach(o => {
+        ctx.save();
+
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = o.color;
+        ctx.fillStyle = o.color;
+
+        if (o.type === "ground_block") {
+            ctx.fillRect(o.x, o.y, o.width, o.height);
+
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(
+                o.x + 5,
+                o.y + 5,
+                Math.max(0, o.width - 10),
+                Math.max(0, o.height - 10)
+            );
+
+        } else if (o.type === "drone") {
+            ctx.beginPath();
+            ctx.moveTo(o.x, o.y + o.height / 2);
+            ctx.lineTo(o.x + o.width / 2, o.y);
+            ctx.lineTo(o.x + o.width, o.y + o.height / 2);
+            ctx.lineTo(o.x + o.width / 2, o.y + o.height);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = "#ffffff";
+
+            ctx.beginPath();
+            ctx.arc(
+                o.x + o.width / 2,
+                o.y + o.height / 2,
+                4,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+
+        } else if (o.type === "laser_gate") {
+            ctx.fillRect(o.x, o.y, o.width, 10);
+
+            ctx.fillRect(
+                o.x,
+                o.y + o.height - 10,
+                o.width,
+                10
+            );
+
+            ctx.strokeStyle = "#ffaa00";
+            ctx.lineWidth = Math.sin(frameCount * 0.3) * 2 + 4;
+
+            ctx.beginPath();
+            ctx.moveTo(o.x + o.width / 2, o.y + 10);
+            ctx.lineTo(
+                o.x + o.width / 2,
+                o.y + o.height - 10
+            );
+            ctx.stroke();
+        }
+
+        ctx.restore();
+    });
+
+    // Particles
+    particles.forEach(p => {
+        ctx.save();
+
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.fillStyle = p.color;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+    });
+
+    // Player
+    player.draw();
+}
+
+/* =========================================
+   LEVEL 1: START / GAME OVER
+========================================= */
+
+function startLevel1() {
+    selectedLevel = 1;
+    gameActive = true;
+
+    score = 0;
+    gameSpeed = baseSpeed;
+    frameCount = 0;
+
+    obstacles = [];
+    particles = [];
+
+    player.reset();
+    initEnvironment();
+
+    scoreDisplay.innerText = "SCORE: 0";
+    healthDisplay.innerText = "HP: 100%";
+    healthDisplay.style.color = "#00ff66";
+
+    startScreen.classList.add("hidden");
+    gameOverScreen.classList.add("hidden");
+}
+
+function endGame() {
+    if (!gameActive) return;
+
+    gameActive = false;
+
+    finalScoreText.innerText = "আপনার স্কোর: " + score;
+
+    gameOverScreen.classList.remove("hidden");
+}
+
+/* =========================================
+   LEVEL 2: ORIGINAL GAME STATE
+========================================= */
+
+let level2State = "START";
+let level2Score = 0;
+let coins = 0;
+
+let level2Speed = 5;
+let level2BaseSpeed = 5;
+let timeElapsed = 0;
+
+let activeSkin = "cyan";
+
+let obstacles2 = [];
+let collectibles = [];
+let particles2 = [];
+let environment = [];
+
+let obstacleTimer = 0;
+let itemTimer = 0;
+
+const skins = {
+    cyan: {
+        color: "#00f3ff",
+        shadow: "#00f3ff",
+        name: "Neon Cyan",
+        cost: 0,
+        unlocked: true
+    },
+
+    ruby: {
+        color: "#ff0055",
+        shadow: "#ff0055",
+        name: "Cyber Ruby",
+        cost: 15,
+        unlocked: false
+    },
+
+    emerald: {
+        color: "#00ff66",
+        shadow: "#00ff66",
+        name: "Matrix Green",
+        cost: 30,
+        unlocked: false
+    }
+};
+
+function getThemeColor() {
+    if (level2Score < 1000) {
+        return {
+            main: "#00f3ff",
+            bgLow: "#070714"
+        };
+    }
+
+    if (level2Score < 2500) {
+        return {
+            main: "#ff0055",
+            bgLow: "#14070f"
+        };
+    }
+
+    return {
+        main: "#dfff00",
+        bgLow: "#111407"
+    };
+}
+
+// PART 3 END
+
+
+/* =========================================
+   PART 4/5
+   LEVEL 2: PLAYER + PARTICLES
+========================================= */
+
+// Level 2 player — separate from Level 1
+const player2 = {
+    x: 100,
+    y: 350,
+    width: 30,
+    height: 45,
+    gravity: 0.6,
+    lift: -12,
+    velocity: 0,
+    jumpCount: 0,
+    maxJumps: 2,
+    health: 100,
+    maxHealth: 100,
+
+    update() {
+        this.velocity += this.gravity;
+        this.y += this.velocity;
+
+        const groundY =
+            canvas.height - 100 - this.height;
+
+        if (this.y >= groundY) {
+            this.y = groundY;
+            this.velocity = 0;
+            this.jumpCount = 0;
+        }
+
+        // Keep player inside the upper canvas boundary
+        if (this.y < 0) {
+            this.y = 0;
+
+            if (this.velocity < 0) {
+                this.velocity = 0;
+            }
+        }
+
+        // Create trail particles during gameplay
+        if (
+            level2State === "PLAYING" &&
+            Math.random() < 0.4
+        ) {
+            particles2.push(
+                new Particle2(
+                    this.x,
+                    this.y + this.height / 2,
+                    skins[activeSkin].color
+                )
+            );
+        }
+    },
+
+    draw() {
+        ctx.save();
+
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = skins[activeSkin].shadow;
+        ctx.fillStyle = skins[activeSkin].color;
+
+        ctx.fillRect(
+            this.x,
+            this.y,
+            this.width,
+            this.height
+        );
+
+        // Player eye
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#ffffff";
+
+        ctx.fillRect(
+            this.x + this.width - 10,
+            this.y + 10,
+            10,
+            6
+        );
+
+        ctx.restore();
+    },
+
+    jump() {
+        if (
+            level2State !== "PLAYING" ||
+            this.jumpCount >= this.maxJumps
+        ) {
+            return;
+        }
+
+        this.velocity = this.lift;
+        this.jumpCount++;
+
+        playSound("jump");
+
+        for (let i = 0; i < 8; i++) {
+            particles2.push(
+                new Particle2(
+                    this.x + this.width / 2,
+                    this.y + this.height,
+                    skins[activeSkin].color
+                )
+            );
+        }
+    }
+};
+
+/* =========================================
+   LEVEL 2: PARTICLE CLASS
+========================================= */
+
+class Particle2 {
+    constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+
+        this.size = Math.random() * 3 + 1;
+
+        this.speedX =
+            (Math.random() - 0.5) * 4 -
+            (
+                level2State === "PLAYING"
+                    ? level2Speed * 0.3
+                    : 0
+            );
+
+        this.speedY = (Math.random() - 0.5) * 4;
+
+        this.color = color;
+        this.alpha = 1;
+    }
+
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.alpha -= 0.02;
+    }
+
+    draw() {
+        if (this.alpha <= 0) return;
+
+        ctx.save();
+
+        ctx.globalAlpha = Math.max(0, this.alpha);
+        ctx.fillStyle = this.color;
+
+        ctx.fillRect(
+            this.x,
+            this.y,
+            this.size,
+            this.size
+        );
+
+        ctx.restore();
+    }
+}
+
+function updateParticles2() {
+    for (let i = particles2.length - 1; i >= 0; i--) {
+        const p = particles2[i];
+
+        p.update();
+
+        if (p.alpha <= 0) {
+            particles2.splice(i, 1);
+        }
+    }
+}
+
+/* =========================================
+   LEVEL 2: ENVIRONMENT INITIALIZATION
+========================================= */
+
+function initEnvironment2() {
+    environment = [];
+
+    // Far buildings
+    for (let i = 0; i < 15; i++) {
+        environment.push({
+            x: i * 80,
+            width: 60 + Math.random() * 40,
+            height: 150 + Math.random() * 200,
+            layer: 0.2,
+            color: "#120f2b"
+        });
+    }
+
+    // Near buildings
+    for (let i = 0; i < 10; i++) {
+        environment.push({
+            x: i * 130,
+            width: 90 + Math.random() * 50,
+            height: 100 + Math.random() * 120,
+            layer: 0.5,
+            color: "#1b163a"
+        });
+    }
+}
+
+function updateEnvironment2() {
+    environment.forEach(b => {
+        b.x -= level2Speed * b.layer;
+
+        if (b.x + b.width < 0) {
+            b.x = canvas.width + Math.random() * 50;
+
+            b.height = b.layer === 0.2
+                ? 150 + Math.random() * 200
+                : 100 + Math.random() * 120;
+        }
+    });
+}
+
+/* =========================================
+   LEVEL 2: OBSTACLE + ITEM SPAWNING
+========================================= */
+
+function spawnManager2() {
+    obstacleTimer++;
+    itemTimer++;
+
+    const spawnRate = Math.max(
+        50,
+        110 - Math.floor(level2Speed * 5)
+    );
+
+    // Spawn obstacles
+    if (obstacleTimer >= spawnRate) {
+        const type = Math.random() < 0.4
+            ? "drone"
+            : "gate";
+
+        const obsY = type === "drone"
+            ? 220 + Math.random() * 80
+            : canvas.height - 150;
+
+        obstacles2.push({
+            x: canvas.width,
+            y: obsY,
+            width: type === "drone" ? 25 : 20,
+            height: type === "drone" ? 25 : 50,
+            type
+        });
+
+        obstacleTimer = 0;
+    }
+
+    // Spawn coins or health items
+    if (itemTimer >= 80) {
+        const isHealth = Math.random() < 0.15;
+
+        collectibles.push({
+            x: canvas.width,
+            y: 180 + Math.random() * 140,
+            width: 20,
+            height: 20,
+            type: isHealth ? "health" : "coin",
+            angle: 0
+        });
+
+        itemTimer = 0;
+    }
+}
+
+/* =========================================
+   LEVEL 2: COLLISION DETECTION
+========================================= */
+
+function checkCollision(rect1, rect2) {
+    return (
+        rect1.x < rect2.x + rect2.width &&
+        rect1.x + rect1.width > rect2.x &&
+        rect1.y < rect2.y + rect2.height &&
+        rect1.y + rect1.height > rect2.y
+    );
+}
+
+/* =========================================
+   LEVEL 2: RESET GAME
+========================================= */
+
+function resetLevel2() {
+    level2Score = 0;
+    timeElapsed = 0;
+    level2Speed = level2BaseSpeed;
+
+    // Reset player position and movement
+    player2.x = 100;
+    player2.y = Math.max(
+        0,
+        canvas.height - 100 - player2.height
+    );
+
+    player2.velocity = 0;
+    player2.jumpCount = 0;
+    player2.health = player2.maxHealth;
+
+    // Clear old objects
+    obstacles2 = [];
+    collectibles = [];
+    particles2 = [];
+
+    obstacleTimer = 0;
+    itemTimer = 0;
+
+    initEnvironment2();
+}
+
+// PART 4 END
+
+
+
+/* =========================================
+   PART 5/5 — FIXED VERSION
+   LEVEL 2: DRAWING + HUD + SHOP
+========================================= */
+
+// Level 2 environment drawing
+function drawEnvironment2() {
+    const theme = getThemeColor();
+
+    ctx.fillStyle = theme.bgLow;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    environment.forEach(b => {
+        ctx.fillStyle = b.color;
+        ctx.fillRect(
+            b.x,
+            canvas.height - 100 - b.height,
+            b.width,
+            b.height
+        );
+
+        ctx.fillStyle = "rgba(255,255,255,0.05)";
+
+        for (let row = 1; row < b.height / 20; row++) {
+            for (let col = 1; col < b.width / 15; col++) {
+                if ((row + col) % 3 === 0) {
+                    ctx.fillRect(
+                        b.x + col * 12,
+                        canvas.height - 100 - b.height + row * 18,
+                        5,
+                        5
+                    );
+                }
+            }
+        }
+    });
+
+    ctx.save();
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = theme.main;
+    ctx.strokeStyle = theme.main;
+    ctx.lineWidth = 4;
+
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height - 100);
+    ctx.lineTo(canvas.width, canvas.height - 100);
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(5,5,15,0.85)";
+    ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+
+    ctx.strokeStyle = "rgba(255,255,255,0.05)";
+    ctx.lineWidth = 1;
+
+    for (let g = 0; g < canvas.width; g += 40) {
+        ctx.beginPath();
+        ctx.moveTo(g, canvas.height - 100);
+        ctx.lineTo(g - 100, canvas.height);
+        ctx.stroke();
+    }
+
+    ctx.restore();
+}
+
+// Level 2 HUD
+function drawHUD2() {
+    ctx.save();
+
+    ctx.font = "bold 16px monospace";
+    ctx.fillStyle = "#fff";
+
+    ctx.fillText("SCORE: " + level2Score, 30, 40);
+    ctx.fillText("COINS: " + coins + " $", 30, 65);
+    ctx.fillText("HP:", canvas.width - 240, 40);
+
+    ctx.fillStyle = "rgba(255,255,255,0.1)";
+    ctx.fillRect(canvas.width - 200, 26, 160, 16);
+
+    ctx.fillStyle = player2.health > 40
+        ? "#00ff66"
+        : "#ff0055";
+
+    ctx.fillRect(
+        canvas.width - 200,
+        26,
+        Math.max(
+            0,
+            Math.min(
+                160,
+                (player2.health / player2.maxHealth) * 160
+            )
+        ),
+        16
+    );
+
+    ctx.fillStyle = "#fff";
+    ctx.font = "14px monospace";
+    ctx.fillText(
+        "SPEED: " + level2Speed.toFixed(1) + "x",
+        canvas.width - 200,
+        65
+    );
+
+    ctx.restore();
+}
+
+// Level 2 overlay
+function drawOverlayMenu2(title, subtitle, showShopHint) {
+    ctx.save();
+
+    ctx.fillStyle = "rgba(5,5,15,0.78)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.textAlign = "center";
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = skins[activeSkin].shadow;
+    ctx.fillStyle = skins[activeSkin].color;
+    ctx.font = "bold 42px monospace";
+
+    ctx.fillText(
+        title,
+        canvas.width / 2,
+        canvas.height / 2 - 30
+    );
+
+    ctx.fillStyle = "#fff";
+    ctx.shadowBlur = 0;
+    ctx.font = "18px monospace";
+
+    ctx.fillText(
+        subtitle,
+        canvas.width / 2,
+        canvas.height / 2 + 20
+    );
+
+    if (showShopHint) {
+        ctx.fillStyle = "#ffd700";
+        ctx.font = "14px monospace";
+
+        ctx.fillText(
+            "Press [S] for Skin Shop | Coins: " + coins,
+            canvas.width / 2,
+            canvas.height / 2 + 70
+        );
+    }
+
+    ctx.restore();
+}
+
+// Level 2 shop
+function drawShopMenu2() {
+    ctx.save();
+
+    ctx.fillStyle = "rgba(5,5,15,0.96)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#ffd700";
+    ctx.font = "bold 28px monospace";
+
+    ctx.fillText(
+        "NEON GARAGE & SKIN SHOP",
+        canvas.width / 2,
+        65
+    );
+
+    ctx.fillStyle = "#fff";
+    ctx.font = "16px monospace";
+
+    ctx.fillText(
+        "Balance: " + coins + " Coins",
+        canvas.width / 2,
+        95
+    );
+
+    const keys = Object.keys(skins);
+    const cardWidth = Math.min(
+        170,
+        (canvas.width - 40 - 20 * (keys.length - 1)) / keys.length
+    );
+    const gap = 20;
+    const totalWidth =
+        keys.length * cardWidth + (keys.length - 1) * gap;
+    const startX = (canvas.width - totalWidth) / 2;
+    const cardY = canvas.height / 2 - 45;
+
+    keys.forEach((key, index) => {
+        const x = startX + index * (cardWidth + gap);
+        const skin = skins[key];
+
+        ctx.fillStyle = "rgba(255,255,255,0.05)";
+        ctx.fillRect(x, cardY, cardWidth, 150);
+
+        ctx.strokeStyle = activeSkin === key
+            ? "#ffffff"
+            : "rgba(255,255,255,0.15)";
+
+        ctx.lineWidth = activeSkin === key ? 2 : 1;
+        ctx.strokeRect(x, cardY, cardWidth, 150);
+
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = skin.shadow;
+        ctx.fillStyle = skin.color;
+
+        ctx.fillRect(
+            x + cardWidth / 2 - 15,
+            cardY + 15,
+            30,
+            40
+        );
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 12px monospace";
+
+        ctx.fillText(
+            skin.name,
+            x + cardWidth / 2,
+            cardY + 75
+        );
+
+        ctx.font = "12px monospace";
+        ctx.fillStyle = skin.unlocked ? "#00ff66" : "#ffd700";
+
+        const status = skin.unlocked
+            ? (activeSkin === key ? "SELECTED" : "SELECT")
+            : "COST: " + skin.cost;
+
+        ctx.fillText(
+            status,
+            x + cardWidth / 2,
+            cardY + 105
+        );
+
+        ctx.fillStyle = "#aaa";
+        ctx.fillText(
+            "[" + (index + 1) + "]",
+            x + cardWidth / 2,
+            cardY + 128
+        );
+    });
+
+    ctx.fillStyle = "#aaa";
+    ctx.font = "12px monospace";
+
+    ctx.fillText(
+        "Click a skin or press 1 / 2 / 3 | S / ESC: Exit",
+        canvas.width / 2,
+        canvas.height - 25
+    );
+
+    ctx.restore();
+}
+
+// Shop mouse/touch interaction
+function handleShopPointer(event) {
+    if (
+        selectedLevel !== 2 ||
+        level2State !== "SHOP"
+    ) {
+        return;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    const x = (event.clientX - rect.left) * scaleX;
+    const y = (event.clientY - rect.top) * scaleY;
+
+    if (
+        y < canvas.height / 2 - 45 ||
+        y > canvas.height / 2 + 105
+    ) {
+        return;
+    }
+
+    const keys = Object.keys(skins);
+    const cardWidth = Math.min(
+        170,
+        (canvas.width - 40 - 20 * (keys.length - 1)) / keys.length
+    );
+    const gap = 20;
+    const totalWidth =
+        keys.length * cardWidth + (keys.length - 1) * gap;
+    const startX = (canvas.width - totalWidth) / 2;
+
+    keys.forEach((key, index) => {
+        const cardX = startX + index * (cardWidth + gap);
+
+        if (
+            x >= cardX &&
+            x <= cardX + cardWidth
+        ) {
+            selectOrBuySkin(key);
+        }
+    });
+}
+
+// Collectibles and obstacles drawing
+function drawItems2() {
+    collectibles.forEach(c => {
+        ctx.save();
+
+        ctx.translate(
+            c.x + c.width / 2,
+            c.y + c.height / 2
+        );
+
+        ctx.rotate(c.angle);
+        ctx.shadowBlur = 15;
+
+        if (c.type === "coin") {
+            ctx.shadowColor = "#ffd700";
+            ctx.fillStyle = "#ffd700";
+
+            ctx.beginPath();
+            ctx.moveTo(0, -c.height / 2);
+            ctx.lineTo(c.width / 2, 0);
+            ctx.lineTo(0, c.height / 2);
+            ctx.lineTo(-c.width / 2, 0);
+            ctx.closePath();
+            ctx.fill();
+        } else {
+            ctx.shadowColor = "#00ff66";
+            ctx.fillStyle = "#00ff66";
+
+            ctx.fillRect(-4, -10, 8, 20);
+            ctx.fillRect(-10, -4, 20, 8);
+        }
+
+        ctx.restore();
+    });
+
+    obstacles2.forEach(o => {
+        ctx.save();
+        ctx.shadowBlur = 15;
+
+        if (o.type === "drone") {
+            ctx.shadowColor = "#ff0055";
+            ctx.fillStyle = "#ff0055";
+
+            ctx.fillRect(o.x, o.y, o.width, o.height);
+
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(o.x - 4, o.y + 4, 4, 6);
+            ctx.fillRect(o.x + o.width, o.y + 4, 4, 6);
+        } else {
+            ctx.shadowColor = "#ff9900";
+            ctx.fillStyle = "#ff9900";
+
+            ctx.fillRect(o.x, o.y, o.width, o.height);
+
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(o.x + 6, o.y, 8, o.height);
+        }
+
+        ctx.restore();
+    });
+}
+
+// Level 2 update logic
+function updateLevel2() {
+    if (level2State !== "PLAYING") return;
+
+    timeElapsed++;
+    level2Score++;
+    level2Speed = Math.min(
+        14,
+        level2BaseSpeed + timeElapsed / 350
+    );
+
+    player2.update();
+    updateEnvironment2();
+    spawnManager2();
+
+    for (let i = obstacles2.length - 1; i >= 0; i--) {
+        const o = obstacles2[i];
+        o.x -= level2Speed;
+
+        if (checkCollision(player2, o)) {
+            player2.health = Math.max(0, player2.health - 25);
+            playSound("hit");
+
+            for (let p = 0; p < 15; p++) {
+                particles2.push(
+                    new Particle2(
+                        player2.x + player2.width,
+                        player2.y + player2.height / 2,
+                        "#ff0033"
+                    )
+                );
+            }
+
+            obstacles2.splice(i, 1);
+
+            if (player2.health <= 0) {
+                level2State = "GAMEOVER";
+            }
+
+            continue;
+        }
+
+        if (o.x + o.width < 0) {
+            obstacles2.splice(i, 1);
+        }
+    }
+
+    for (let i = collectibles.length - 1; i >= 0; i--) {
+        const c = collectibles[i];
+
+        c.x -= level2Speed;
+        c.angle += 0.05;
+
+        if (checkCollision(player2, c)) {
+            if (c.type === "coin") {
+                coins++;
+                level2Score += 50;
+                playSound("coin");
+
+                for (let p = 0; p < 8; p++) {
+                    particles2.push(
+                        new Particle2(c.x, c.y, "#ffd700")
+                    );
+                }
+            } else {
+                player2.health = Math.min(
+                    player2.maxHealth,
+                    player2.health + 20
+                );
+
+                // Part 1-এর playSound() এ health যোগ করলে
+                // এই effect-টিও শোনা যাবে।
+                playSound("health");
+
+                for (let p = 0; p < 12; p++) {
+                    particles2.push(
+                        new Particle2(c.x, c.y, "#00ff66")
+                    );
+                }
+            }
+
+            collectibles.splice(i, 1);
+        } else if (c.x + c.width < 0) {
+            collectibles.splice(i, 1);
+        }
+    }
+}
+
+// Level 2 draw
+function drawLevel2() {
+    drawEnvironment2();
+
+    if (
+        level2State === "PLAYING" ||
+        level2State === "GAMEOVER"
+    ) {
+        drawItems2();
+        player2.draw();
+        drawHUD2();
+    }
+
+    updateParticles2();
+    particles2.forEach(p => p.draw());
+
+    if (level2State === "START") {
+        drawOverlayMenu2(
+            "CYBER NEON RIDER",
+            "Press SPACEBAR or CLICK to Race",
+            true
+        );
+    } else if (level2State === "GAMEOVER") {
+        drawOverlayMenu2(
+            "GAME OVER",
+            "Final Score: " + level2Score +
+                " | SPACE to Try Again",
+            false
+        );
+    } else if (level2State === "SHOP") {
+        drawShopMenu2();
+    }
+}
+
+// Select or purchase skin
+function selectOrBuySkin(key) {
+    const skin = skins[key];
+
+    if (!skin) return;
+
+    if (skin.unlocked) {
+        activeSkin = key;
+        playSound("jump");
+    } else if (coins >= skin.cost) {
+        coins -= skin.cost;
+        skin.unlocked = true;
+        activeSkin = key;
+        playSound("score");
+    } else {
+        playSound("hit");
+    }
+}
+
+// Level 2 controls
+function triggerLevel2Action() {
+    if (level2State === "START") {
+        resetLevel2();
+        level2State = "PLAYING";
+    } else if (level2State === "PLAYING") {
+        player2.jump();
+    } else if (level2State === "GAMEOVER") {
+        resetLevel2();
+        level2State = "PLAYING";
+    }
+}
+
+// Shared level switching
+function switchLevel(level) {
+    selectedLevel = Number(level);
+
+    gameActive = false;
+    level2State = "START";
+
+    gameOverScreen.classList.add("hidden");
+
+    if (selectedLevel === 2) {
+        startScreen.classList.add("hidden");
+        resetLevel2();
+    } else {
+        selectedLevel = 1;
+        startScreen.classList.remove("hidden");
+
+        player.reset();
+        obstacles = [];
+        particles = [];
+        score = 0;
+        gameSpeed = baseSpeed;
+        frameCount = 0;
+
+        scoreDisplay.innerText = "SCORE: 0";
+        healthDisplay.innerText = "HP: 100%";
+
+        initEnvironment();
+    }
+}
+
+// Main loop — requestAnimationFrame একবারই চালু হবে
+function mergedGameLoop() {
+    if (selectedLevel === 1) {
+        if (gameActive) {
+            updateLevel1();
+
+            if (gameActive) {
+                drawLevel1();
+            }
+        }
+    } else {
+        updateLevel2();
+        drawLevel2();
+    }
+
+    requestAnimationFrame(mergedGameLoop);
+}
+
+// Sound toggle
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+
+    const button = document.getElementById("sound-toggle");
+
+    if (button) {
+        button.textContent = soundEnabled
+            ? "🔊 Sound ON"
+            : "🔇 Sound OFF";
+    }
+}
+
+// Keyboard controls
+window.addEventListener("keydown", event => {
+    if (
+        event.code === "Space" &&
+        !event.repeat
+    ) {
+        event.preventDefault();
+
+        if (selectedLevel === 1) {
+            if (gameActive) {
+                player.jump();
+            } else if (
+                gameOverScreen.classList.contains("hidden")
+            ) {
+                startLevel1();
+            } else {
+                startLevel1();
+            }
+        } else {
+            if (level2State !== "SHOP") {
+                triggerLevel2Action();
+            }
+        }
+    }
+
+    if (selectedLevel !== 2) return;
+
+    if (event.key.toLowerCase() === "s") {
+        if (level2State === "SHOP") {
+            level2State = "START";
+        } else if (
+            level2State === "START" ||
+            level2State === "GAMEOVER"
+        ) {
+            level2State = "SHOP";
+        }
+    }
+
+    if (
+        event.key === "Escape" &&
+        level2State === "SHOP"
+    ) {
+        level2State = "START";
+    }
+
+    if (level2State === "SHOP") {
+        if (event.key === "1") selectOrBuySkin("cyan");
+        if (event.key === "2") selectOrBuySkin("ruby");
+        if (event.key === "3") selectOrBuySkin("emerald");
+    }
+});
+
+// Canvas pointer support
+canvas.addEventListener("pointerdown", event => {
+    event.preventDefault();
+
+    if (
+        event.pointerType === "mouse" &&
+        event.button !== 0
+    ) {
+        return;
+    }
+
+    if (selectedLevel === 2 && level2State === "SHOP") {
+        handleShopPointer(event);
+        return;
+    }
+
+    if (selectedLevel === 1) {
+        if (gameActive) {
+            player.jump();
+        } else {
+            startLevel1();
+        }
+    } else {
+        triggerLevel2Action();
+    }
+}, { passive: false });
+
+// Start / restart buttons
+if (startBtn) {
+    startBtn.addEventListener("click", () => {
+        if (selectedLevel === 1) startLevel1();
+    });
+}
+
+if (restartBtn) {
+    restartBtn.addEventListener("click", () => {
+        if (selectedLevel === 1) startLevel1();
+    });
+}
+
+// Level selector
+const levelSelect = document.getElementById("level-select");
+
+if (levelSelect) {
+    levelSelect.addEventListener("change", event => {
+        switchLevel(event.target.value);
+    });
+}
+
+// Sound toggle
+const soundButton = document.getElementById("sound-toggle");
+
+if (soundButton) {
+    soundButton.addEventListener("click", toggleSound);
+}
+
+// Initialize
+initEnvironment();
+initEnvironment2();
+drawLevel1();
+mergedGameLoop();
+
+/* =========================================
+   PART 5/5 END
+========================================= */
+
+
+</script>
+
+</body>
+</html>
